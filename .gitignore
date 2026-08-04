@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Node
+node_modules/
+build/
+.env.local
+
+# Local upload storage (dev only)
+talentai-backend/app/storage/uploads/
+
+# IDE
+.vscode/
+.DS_Store
+
+# Logs
+*.log
