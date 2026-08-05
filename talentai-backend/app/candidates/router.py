@@ -8,9 +8,11 @@ from app.db.models.user import User
 from app.services.candidate_service import CandidateService
 from app.services.matching_service import MatchingService
 from app.services.learning_service import LearningService
+from app.services.career_service import CareerService
 from app.schemas.candidate import ResumeUploadResponse, CandidateProfileOut, SkillOut
 from app.schemas.match import MatchOut
 from app.schemas.learning import LearningResourceOut
+from app.schemas.career import CareerTrackOut, CareerPathOut, CareerStageOut
 
 router = APIRouter(prefix="/candidates", tags=["Candidates"])
 
@@ -108,3 +110,39 @@ def get_learning_recommendations(
     learning_service = LearningService(db)
     results = learning_service.get_recommendations_for_candidate(profile.id)
     return [LearningResourceOut(**r) for r in results]
+
+
+@router.get("/career-tracks", response_model=List[CareerTrackOut])
+def list_career_tracks(
+    current_user: User = Depends(require_role("candidate")),
+    db: Session = Depends(get_db),
+):
+    service = CareerService(db)
+    tracks = service.list_tracks()
+    return [CareerTrackOut(**t) for t in tracks]
+
+
+@router.get("/career-path/{track_key}", response_model=CareerPathOut)
+def get_career_path(
+    track_key: str,
+    current_user: User = Depends(require_role("candidate")),
+    db: Session = Depends(get_db),
+):
+    candidate_service = CandidateService(db)
+    try:
+        profile = candidate_service.get_profile(current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+    career_service = CareerService(db)
+    try:
+        result = career_service.get_career_path(profile.id, track_key)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+    return CareerPathOut(
+        track_key=result["track_key"],
+        track_display_name=result["track_display_name"],
+        stages=[CareerStageOut(**s) for s in result["stages"]],
+        generated_at=result["generated_at"],
+    )
