@@ -12,7 +12,7 @@ from app.services.career_service import CareerService
 from app.schemas.candidate import ResumeUploadResponse, CandidateProfileOut, SkillOut
 from app.schemas.match import MatchOut
 from app.schemas.learning import LearningResourceOut
-from app.schemas.career import CareerTrackOut, CareerPathOut, CareerStageOut
+from app.schemas.career import CareerTrackOut, CareerPathOut, CareerStageOut, RecommendedLearningOut
 
 router = APIRouter(prefix="/candidates", tags=["Candidates"])
 
@@ -146,4 +146,10 @@ def get_career_path(
         track_display_name=result["track_display_name"],
         stages=[CareerStageOut(**s) for s in result["stages"]],
         generated_at=result["generated_at"],
+        readiness_score=result["readiness_score"],
+        recommended_next_role=result["recommended_next_role"],
+        current_skills=result["current_skills"],
+        missing_skills=result["missing_skills"],
+        rationale=result["rationale"],
+        recommended_learning=result["recommended_learning"],
     )
