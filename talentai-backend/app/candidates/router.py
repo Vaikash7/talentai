@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -5,7 +6,9 @@ from app.db.session import get_db
 from app.core.security import require_role
 from app.db.models.user import User
 from app.services.candidate_service import CandidateService
+from app.services.matching_service import MatchingService
 from app.schemas.candidate import ResumeUploadResponse, CandidateProfileOut, SkillOut
+from app.schemas.match import MatchOut
 
 router = APIRouter(prefix="/candidates", tags=["Candidates"])
 
@@ -71,3 +74,19 @@ def get_my_profile(
             for link in profile.skills
         ],
     )
+
+
+@router.get("/matches", response_model=List[MatchOut])
+def get_my_matches(
+    current_user: User = Depends(require_role("candidate")),
+    db: Session = Depends(get_db),
+):
+    service = CandidateService(db)
+    try:
+        profile = service.get_profile(current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+    matching_service = MatchingService(db)
+    results = matching_service.get_matches_for_candidate(profile.id)
+    return [MatchOut(**r) for r in results]

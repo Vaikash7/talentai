@@ -6,7 +6,9 @@ from app.db.session import get_db
 from app.core.security import require_role
 from app.db.models.user import User
 from app.services.recruiter_service import RecruiterService
+from app.services.matching_service import MatchingService
 from app.schemas.job import JobCreate, JobUpdate, JobOut, RequiredSkillOut
+from app.schemas.match import MatchOut
 
 router = APIRouter(prefix="/jobs", tags=["Recruiters"])
 
@@ -58,6 +60,29 @@ def list_open_jobs(db: Session = Depends(get_db)):
     service = RecruiterService(db)
     jobs = service.list_open_jobs()
     return [_to_job_out(job) for job in jobs]
+
+
+@router.get("/{job_id}/matches", response_model=List[MatchOut])
+def get_job_matches(
+    job_id: str,
+    current_user: User = Depends(require_role("recruiter")),
+    db: Session = Depends(get_db),
+):
+    service = RecruiterService(db)
+    try:
+        job = service.get_job(job_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+    if job.posted_by != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only view matches for your own job postings.",
+        )
+
+    matching_service = MatchingService(db)
+    results = matching_service.get_matches_for_job(job_id)
+    return [MatchOut(**r) for r in results]
 
 
 @router.get("/{job_id}", response_model=JobOut)
