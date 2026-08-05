@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { ProtectedRoute } from '../auth/ProtectedRoute';
+import { LandingPage } from '../pages/LandingPage';
 import { LoginPage } from '../pages/auth/LoginPage';
 import { RegisterPage } from '../pages/auth/RegisterPage';
 
@@ -23,7 +24,7 @@ import { PlatformStatsPage } from '../pages/admin/PlatformStatsPage';
 function HomeRedirect() {
   const { user, loading } = useAuth();
   if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <LandingPage />;
   return <Navigate to={`/${user.role}`} replace />;
 }
 

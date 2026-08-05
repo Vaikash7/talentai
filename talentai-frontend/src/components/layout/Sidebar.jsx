@@ -31,7 +31,11 @@ export function Sidebar({ role, collapsed, onToggle }) {
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-logo">
-        <Sparkles size={22} />
+        <span style={{
+          width: 30, height: 30, borderRadius: 9, flexShrink: 0,
+          background: 'linear-gradient(135deg, var(--color-primary), #ec4899)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+        }}><Sparkles size={16} /></span>
         {!collapsed && <span>TalentAI</span>}
       </div>
       <nav className="sidebar-nav">

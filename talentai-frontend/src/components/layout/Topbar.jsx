@@ -1,9 +1,11 @@
-import { LogOut } from 'lucide-react';
+import { LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { useTheme } from '../../hooks/useTheme';
 import { useNavigate } from 'react-router-dom';
 
 export function Topbar({ title }) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const initials = user?.full_name
@@ -15,7 +17,7 @@ export function Topbar({ title }) {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/', { replace: true });
   };
 
   return (
@@ -24,6 +26,9 @@ export function Topbar({ title }) {
         <span className="topbar-title">{title}</span>
       </div>
       <div className="topbar-right">
+        <button className="icon-btn" onClick={toggleTheme} title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
         <div className="user-chip">
           <div className="user-avatar">{initials}</div>
           <div className="user-meta">

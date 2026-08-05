@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Briefcase, Trash2, Users, PlusCircle } from 'lucide-react';
+import { Briefcase, Trash2, Users, PlusCircle, XCircle, RotateCcw } from 'lucide-react';
 import { PageLayout } from '../../components/layout/PageLayout';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -9,6 +9,7 @@ import { recruiterApi } from '../../api/recruiterApi';
 export function JobListPage() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
   const navigate = useNavigate();
 
   const loadJobs = async () => {
@@ -23,6 +24,17 @@ export function JobListPage() {
     if (!window.confirm('Delete this job posting? This cannot be undone.')) return;
     await recruiterApi.deleteJob(jobId);
     loadJobs();
+  };
+
+  const handleStatusChange = async (jobId, newStatus, confirmMessage) => {
+    if (!window.confirm(confirmMessage)) return;
+    setUpdatingId(jobId);
+    try {
+      await recruiterApi.updateJob(jobId, { status: newStatus });
+      await loadJobs();
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
   if (loading) return <PageLayout role="recruiter" title="My Jobs"><LoadingSpinner /></PageLayout>;
@@ -57,10 +69,44 @@ export function JobListPage() {
                     {j.required_skills.length > 3 && <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>+{j.required_skills.length - 3} more</span>}
                   </td>
                   <td>
-                    <div style={{ display: 'flex', gap: 6 }}>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                       <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/recruiter/jobs/${j.id}/matches`)}>
                         <Users size={14} /> Matches
                       </button>
+
+                      {j.status === 'open' && (
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => handleStatusChange(j.id, 'closed', 'Mark this job as closed (filled)? It will no longer be visible to candidates, but its history and matches are preserved.')}
+                          disabled={updatingId === j.id}
+                          title="Mark as filled / closed"
+                        >
+                          <XCircle size={14} /> {updatingId === j.id ? 'Closing...' : 'Close'}
+                        </button>
+                      )}
+
+                      {j.status === 'closed' && (
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => handleStatusChange(j.id, 'open', 'Reopen this job? It will become visible to candidates again.')}
+                          disabled={updatingId === j.id}
+                          title="Reopen this job"
+                        >
+                          <RotateCcw size={14} /> {updatingId === j.id ? 'Reopening...' : 'Reopen'}
+                        </button>
+                      )}
+
+                      {j.status === 'draft' && (
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => handleStatusChange(j.id, 'open', 'Publish this job? It will become visible to candidates.')}
+                          disabled={updatingId === j.id}
+                          title="Publish this draft"
+                        >
+                          {updatingId === j.id ? 'Publishing...' : 'Publish'}
+                        </button>
+                      )}
+
                       <button className="btn btn-secondary btn-sm" onClick={() => handleDelete(j.id)}>
                         <Trash2 size={14} />
                       </button>
