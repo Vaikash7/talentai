@@ -7,6 +7,27 @@ from app.storage import get_storage_service
 from app.utils.file_parser import extract_text_from_file
 from app.db.models.skill import Skill
 
+# Common abbreviations/synonyms mapped to their canonical skill name
+# (must match a name in the seeded `skills` table). This improves
+# recognition beyond exact substring matches without requiring an
+# external AI provider.
+SKILL_SYNONYMS = {
+    "javascript": "JavaScript",
+    "nodejs": "Node.js",
+    "node.js": "Node.js",
+    "reactjs": "React",
+    "react.js": "React",
+    "postgresql": "PostgreSQL",
+    "postgres": "PostgreSQL",
+    "kubernetes": "Kubernetes",
+    "ci/cd": "CI/CD",
+    "continuous integration": "CI/CD",
+    "machine learning": "Machine Learning",
+    "scrum master": "Agile/Scrum",
+    "project management": "Project Management",
+    "stakeholder management": "Stakeholder Management",
+}
+
 
 class CandidateService:
     def __init__(self, db: Session):
@@ -36,8 +57,9 @@ class CandidateService:
         # 4. Save the new file via the active storage backend
         blob_url = self.storage.upload(file_bytes, filename)
 
-        # 5. Extract skills (PLACEHOLDER — replaced with Claude in Step 9)
-        extracted_skill_names = self._extract_skills_placeholder(resume_text)
+        # 5. Extract skills using rule-based matching against the
+        #    master skills list (see extract_skills_rule_based below).
+        extracted_skill_names = self.extract_skills_rule_based(resume_text)
 
         # 6. Create or update the profile record
         if is_new:
@@ -63,22 +85,40 @@ class CandidateService:
             raise ValueError("Candidate profile not found.")
         return profile
 
-    def _extract_skills_placeholder(self, resume_text: str) -> List[str]:
+    def extract_skills_rule_based(self, resume_text: str) -> List[str]:
         """
-        TEMPORARY placeholder for Claude-based skill extraction (Step 9).
-        Does simple case-insensitive substring matching against the
-        master skills list, just to make the end-to-end flow testable
-        before AI integration is built.
+        Deterministic, rule-based skill extraction. Matches resume text
+        against the master skills list (case-insensitive substring match),
+        plus a small synonym map for common abbreviations.
+
+        This is the application's permanent skill-extraction method —
+        TalentAI runs entirely on rule-based logic with no dependency
+        on any external AI API. See app/ai/README.md for details on
+        how an AI-based extractor could be added later without
+        changing anything outside this method.
         """
         if not resume_text:
             return []
 
         resume_text_lower = resume_text.lower()
         all_skills = self.db.query(Skill).all()
+        matched = set()
 
-        matched = [
-            skill.name
-            for skill in all_skills
-            if skill.name.lower() in resume_text_lower
-        ]
-        return matched
+        # Direct matches against the master skills list
+        for skill in all_skills:
+            if skill.name.lower() in resume_text_lower:
+                matched.add(skill.name)
+
+        # Synonym matches — map abbreviations to canonical skill names
+        for synonym, canonical_name in SKILL_SYNONYMS.items():
+            if synonym in resume_text_lower:
+                # Only add if the canonical name actually exists in
+                # the master skills list — avoids inserting unknown names.
+                canonical_skill = next(
+                    (s for s in all_skills if s.name.lower() == canonical_name.lower()),
+                    None,
+                )
+                if canonical_skill:
+                    matched.add(canonical_skill.name)
+
+        return list(matched)
