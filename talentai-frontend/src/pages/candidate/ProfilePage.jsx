@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FileText, ExternalLink } from 'lucide-react';
+import { FileText, ExternalLink, Building2, Globe } from 'lucide-react';
 import { PageLayout } from '../../components/layout/PageLayout';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -35,13 +35,21 @@ export function ProfilePage() {
     );
   }
 
+  const isInternal = profile.employee_type === 'internal';
+
   return (
     <PageLayout role="candidate" title="Profile">
+      <div style={{ marginBottom: 20 }}>
+        <span className={`badge ${isInternal ? 'badge-success' : 'badge-primary'}`} style={{ fontSize: 13, padding: '6px 14px' }}>
+          {isInternal ? <><Building2 size={14} /> Internal Employee</> : <><Globe size={14} /> External Candidate</>}
+        </span>
+      </div>
+
       <div className="grid grid-2">
         <div className="card">
           <div className="card-header"><div className="card-title">Resume Summary</div></div>
           <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', whiteSpace: 'pre-wrap', maxHeight: 300, overflowY: 'auto' }}>
-            {profile.summary || 'No summary available.'}
+            {profile.summary || 'No summary available. Upload a resume to add one.'}
           </p>
           {profile.resume_blob_url && (
             <div style={{ marginTop: 16, fontSize: 13, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -64,7 +72,7 @@ export function ProfilePage() {
               ))}
             </div>
           ) : (
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>No skills identified.</p>
+            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>No skills identified yet.</p>
           )}
         </div>
       </div>

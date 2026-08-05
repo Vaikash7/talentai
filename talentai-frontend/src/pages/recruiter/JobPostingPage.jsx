@@ -18,10 +18,17 @@ export function JobPostingPage() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const addSkill = () => {
-    const name = skillInput.trim();
-    if (!name || skills.includes(name)) return;
-    setSkills([...skills, name]);
-    setMandatorySkills([...mandatorySkills, name]); // default mandatory
+    // Support comma-separated entry (e.g. "Python, SQL") by splitting
+    // into individual skills, in addition to single-skill entry.
+    const names = skillInput
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0 && !skills.includes(s));
+
+    if (names.length === 0) return;
+
+    setSkills([...skills, ...names]);
+    setMandatorySkills([...mandatorySkills, ...names]); // default mandatory
     setSkillInput('');
   };
 
@@ -93,7 +100,7 @@ export function JobPostingPage() {
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
             <input
               className="form-input" value={skillInput} onChange={(e) => setSkillInput(e.target.value)}
-              placeholder="e.g. Python" onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+              placeholder="e.g. Python or Python, SQL, Docker" onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
             />
             <button type="button" className="btn btn-secondary" onClick={addSkill}>Add</button>
           </div>
@@ -109,7 +116,7 @@ export function JobPostingPage() {
               </span>
             ))}
           </div>
-          <div className="form-hint">Check "required" for must-have skills; uncheck for nice-to-haves.</div>
+          <div className="form-hint">Type one skill or several separated by commas, then click Add. Check "required" for must-have skills; uncheck for nice-to-haves.</div>
         </div>
 
         <div className="form-group">

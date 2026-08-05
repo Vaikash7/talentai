@@ -6,7 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 export function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ full_name: '', email: '', password: '', role: 'candidate' });
+  const [form, setForm] = useState({ full_name: '', email: '', password: '', role: 'candidate', employee_type: 'external' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +21,11 @@ export function RegisterPage() {
     }
     setLoading(true);
     try {
-      const user = await register(form);
+      const payload = { ...form };
+      if (payload.role !== 'candidate') {
+        delete payload.employee_type;
+      }
+      const user = await register(payload);
       navigate(`/${user.role}`);
     } catch (err) {
       setError(err.response?.data?.detail || 'Registration failed. Please try again.');
@@ -60,9 +64,19 @@ export function RegisterPage() {
             <select className="form-select" name="role" value={form.role} onChange={handleChange}>
               <option value="candidate">Candidate — looking for opportunities</option>
               <option value="recruiter">Recruiter — hiring talent</option>
-              <option value="admin">Admin — platform management</option>
             </select>
           </div>
+
+          {form.role === 'candidate' && (
+            <div className="form-group">
+              <label className="form-label">Candidate Type</label>
+              <select className="form-select" name="employee_type" value={form.employee_type} onChange={handleChange}>
+                <option value="external">External Candidate — applying from outside the organization</option>
+                <option value="internal">Internal Employee — currently employed, exploring internal opportunities</option>
+              </select>
+            </div>
+          )}
+
           <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
