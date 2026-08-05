@@ -8,7 +8,7 @@ from app.db.models.match import Match
 from app.repositories.job_repository import JobRepository
 from app.repositories.candidate_repository import CandidateRepository
 from app.repositories.match_repository import MatchRepository
-from app.matching.scorer import calculate_match_score
+from app.matching.scorer import calculate_match_score, ScoreResult
 
 
 class MatchingService:
@@ -32,6 +32,7 @@ class MatchingService:
         required_skills = self._get_job_required_skills(job)
 
         result = calculate_match_score(candidate_skills, required_skills)
+        rationale = self._generate_rationale(result, required_skills)
 
         return self.match_repo.upsert(
             job_id=job.id,
@@ -39,7 +40,50 @@ class MatchingService:
             score=result.score,
             matched_skills=result.matched_skills,
             gap_skills=result.gap_skills,
+            ai_rationale=rationale,
         )
+
+    def _generate_rationale(self, result: ScoreResult, required_skills: List[dict]) -> str:
+        """
+        Deterministic, rule-based explanation of a match score — built
+        from the same data the scorer already computed. This is
+        TalentAI's permanent rationale generator; no external AI
+        provider is used. See app/ai/README.md for how an AI-based
+        rationale generator could be plugged in here in the future
+        without changing anything else in this file.
+        """
+        mandatory_names = {r["name"] for r in required_skills if r.get("is_mandatory", True)}
+        matched_set = set(result.matched_skills)
+        gap_set = set(result.gap_skills)
+
+        missing_mandatory = sorted(gap_set & mandatory_names)
+        missing_optional = sorted(gap_set - mandatory_names)
+
+        matched_list = ", ".join(sorted(result.matched_skills)) if result.matched_skills else "none"
+
+        if result.score >= 90:
+            opening = "Excellent match."
+        elif result.score >= 70:
+            opening = "Strong match."
+        elif result.score >= 40:
+            opening = "Partial match."
+        else:
+            opening = "Limited match."
+
+        parts = [opening, f"Matched skills: {matched_list}."]
+
+        if missing_mandatory:
+            parts.append(
+                f"Missing required skill(s): {', '.join(missing_mandatory)}."
+            )
+        if missing_optional:
+            parts.append(
+                f"Missing preferred (optional) skill(s): {', '.join(missing_optional)}."
+            )
+        if not missing_mandatory and not missing_optional:
+            parts.append("Candidate meets all listed requirements.")
+
+        return " ".join(parts)
 
     def get_matches_for_candidate(self, candidate_profile_id) -> List[dict]:
         profile = self.candidate_repo.get_by_id(candidate_profile_id)
