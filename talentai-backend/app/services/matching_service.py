@@ -112,10 +112,24 @@ class MatchingService:
             match = self.compute_match(job, profile)
             results.append(self._match_to_dict(match, candidate_profile=profile))
 
-        results.sort(key=lambda m: m["score"], reverse=True)
+        # Internal Mobility: for internal project postings, surface internal
+        # employees first (same scores are preserved — this only reorders
+        # the list, it never changes or filters the underlying scores).
+        if job.job_type.value == "project":
+            results.sort(
+                key=lambda m: (m["candidate_employee_type"] != "internal", -m["score"])
+            )
+        else:
+            results.sort(key=lambda m: m["score"], reverse=True)
+
         return results
 
     def _match_to_dict(self, match: Match, job: Job = None, candidate_profile: CandidateProfile = None) -> dict:
+        # candidate_employee_type is resolved either from the profile passed
+        # directly (recruiter-facing view) or looked up via the match's
+        # own candidate_profile relationship (candidate-facing view), so
+        # both directions expose this field consistently.
+        resolved_profile = candidate_profile or match.candidate_profile
         return {
             "match_id": match.id,
             "job_id": match.job_id,
@@ -126,4 +140,5 @@ class MatchingService:
             "ai_rationale": match.ai_rationale,
             "job_title": job.title if job else None,
             "candidate_summary": candidate_profile.summary if candidate_profile else None,
+            "candidate_employee_type": resolved_profile.employee_type if resolved_profile else None,
         }

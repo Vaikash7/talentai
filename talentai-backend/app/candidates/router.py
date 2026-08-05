@@ -73,6 +73,7 @@ def get_my_profile(
         resume_blob_url=profile.resume_blob_url,
         summary=profile.summary,
         experience_years=profile.experience_years,
+        employee_type=profile.employee_type,
         skills=[
             SkillOut(id=link.skill.id, name=link.skill.name, category=link.skill.category)
             for link in profile.skills

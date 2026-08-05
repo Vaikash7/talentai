@@ -15,6 +15,11 @@ class ProficiencyLevel(str, enum.Enum):
     expert = "expert"
 
 
+class EmployeeType(str, enum.Enum):
+    internal = "internal"
+    external = "external"
+
+
 class CandidateProfile(Base):
     __tablename__ = "candidate_profiles"
 
@@ -32,6 +37,7 @@ class CandidateProfile(Base):
     resume_blob_url = Column(String(1000), nullable=True)
     summary = Column(Text, nullable=True)
     experience_years = Column(Integer, nullable=True)
+    employee_type = Column(Enum(EmployeeType), nullable=False, default=EmployeeType.external)
 
     # Relationships
     user = relationship("User", back_populates="candidate_profile")

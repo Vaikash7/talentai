@@ -1,7 +1,8 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.db.models.user import User
+from app.db.models.user import User, UserRole
+from app.db.models.candidate import CandidateProfile, EmployeeType
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import RegisterRequest, LoginRequest
 from app.core.security import hash_password, verify_password, create_access_token
@@ -25,7 +26,21 @@ class AuthService:
             full_name=data.full_name,
             role=data.role,
         )
-        return self.user_repo.create(new_user)
+        created_user = self.user_repo.create(new_user)
+
+        # Candidates get their profile created immediately at registration
+        # (rather than on first resume upload), so employee_type can be
+        # captured up front as required by the platform's internal/external
+        # mobility model.
+        if created_user.role == UserRole.candidate:
+            profile = CandidateProfile(
+                user_id=created_user.id,
+                employee_type=data.employee_type or EmployeeType.external,
+            )
+            self.db.add(profile)
+            self.db.commit()
+
+        return created_user
 
     def authenticate(self, data: LoginRequest) -> User:
         user = self.user_repo.get_by_email(data.email)

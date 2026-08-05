@@ -1,6 +1,6 @@
 from app.db.models.user import User, UserRole
 from app.db.models.skill import Skill
-from app.db.models.candidate import CandidateProfile, CandidateSkill, ProficiencyLevel
+from app.db.models.candidate import CandidateProfile, CandidateSkill, ProficiencyLevel, EmployeeType
 from app.db.models.job import Job, JobRequiredSkill, JobType, JobStatus
 from app.db.models.match import Match
 from app.db.models.learning import LearningResource, ResourceLevel
@@ -13,6 +13,7 @@ __all__ = [
     "CandidateProfile",
     "CandidateSkill",
     "ProficiencyLevel",
+    "EmployeeType",
     "Job",
     "JobRequiredSkill",
     "JobType",

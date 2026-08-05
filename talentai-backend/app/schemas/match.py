@@ -2,6 +2,8 @@ import uuid
 from typing import List, Optional
 from pydantic import BaseModel
 
+from app.db.models.candidate import EmployeeType
+
 
 class MatchOut(BaseModel):
     match_id: uuid.UUID
@@ -13,3 +15,4 @@ class MatchOut(BaseModel):
     ai_rationale: Optional[str] = None
     job_title: Optional[str] = None
     candidate_summary: Optional[str] = None
+    candidate_employee_type: Optional[EmployeeType] = None

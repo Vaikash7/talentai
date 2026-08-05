@@ -2,6 +2,8 @@ import uuid
 from typing import List, Optional
 from pydantic import BaseModel
 
+from app.db.models.candidate import EmployeeType
+
 
 class SkillOut(BaseModel):
     id: uuid.UUID
@@ -27,6 +29,7 @@ class CandidateProfileOut(BaseModel):
     resume_blob_url: Optional[str] = None
     summary: Optional[str] = None
     experience_years: Optional[int] = None
+    employee_type: EmployeeType
     skills: List[SkillOut] = []
 
     class Config:
