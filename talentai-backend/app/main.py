@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.auth.router import router as auth_router
 from app.candidates.router import router as candidates_router
+from app.recruiters.router import router as recruiters_router
 
 app = FastAPI(
     title="TalentAI API",
@@ -10,7 +11,6 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Allow the React frontend (localhost:3000) to call this API during development
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -21,6 +21,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(candidates_router)
+app.include_router(recruiters_router)
 
 
 @app.get("/")
