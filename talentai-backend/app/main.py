@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.auth.router import router as auth_router
 from app.candidates.router import router as candidates_router
 from app.recruiters.router import router as recruiters_router
+from app.admin.router import router as admin_router
 
 app = FastAPI(
     title="TalentAI API",
@@ -22,6 +23,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(candidates_router)
 app.include_router(recruiters_router)
+app.include_router(admin_router)
 
 
 @app.get("/")
