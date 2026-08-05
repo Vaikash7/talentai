@@ -7,8 +7,10 @@ from app.core.security import require_role
 from app.db.models.user import User
 from app.services.candidate_service import CandidateService
 from app.services.matching_service import MatchingService
+from app.services.learning_service import LearningService
 from app.schemas.candidate import ResumeUploadResponse, CandidateProfileOut, SkillOut
 from app.schemas.match import MatchOut
+from app.schemas.learning import LearningResourceOut
 
 router = APIRouter(prefix="/candidates", tags=["Candidates"])
 
@@ -90,3 +92,19 @@ def get_my_matches(
     matching_service = MatchingService(db)
     results = matching_service.get_matches_for_candidate(profile.id)
     return [MatchOut(**r) for r in results]
+
+
+@router.get("/learning-recommendations", response_model=List[LearningResourceOut])
+def get_learning_recommendations(
+    current_user: User = Depends(require_role("candidate")),
+    db: Session = Depends(get_db),
+):
+    service = CandidateService(db)
+    try:
+        profile = service.get_profile(current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+    learning_service = LearningService(db)
+    results = learning_service.get_recommendations_for_candidate(profile.id)
+    return [LearningResourceOut(**r) for r in results]
