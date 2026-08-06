@@ -1,36 +1,39 @@
 :root {
-  /* Dark theme (default) */
   --color-primary: #6366f1;
   --color-primary-dark: #4f46e5;
   --color-primary-light: rgba(99, 102, 241, 0.15);
+  --color-violet: #a855f7;
+  --color-violet-light: rgba(168, 85, 247, 0.15);
+  --color-blue: #3b82f6;
+  --color-blue-light: rgba(59, 130, 246, 0.15);
   --color-secondary: #0ea5e9;
-  --color-success: #22c55e;
-  --color-success-light: rgba(34, 197, 94, 0.15);
+  --color-success: #10b981;
+  --color-success-light: rgba(16, 185, 129, 0.15);
   --color-warning: #f59e0b;
   --color-warning-light: rgba(245, 158, 11, 0.15);
   --color-danger: #ef4444;
   --color-danger-light: rgba(239, 68, 68, 0.15);
 
-  --color-bg: #0f172a;
-  --color-surface: #1e293b;
-  --color-surface-hover: #263449;
-  --color-border: rgba(255, 255, 255, 0.08);
+  --color-bg: #0a0e1a;
+  --color-surface: #131a29;
+  --color-surface-hover: #1a2236;
+  --color-border: rgba(255, 255, 255, 0.07);
   --color-border-strong: rgba(255, 255, 255, 0.16);
-  --color-text-primary: #f1f5f9;
+  --color-text-primary: #f8fafc;
   --color-text-secondary: #94a3b8;
   --color-text-muted: #64748b;
 
-  --sidebar-width: 250px;
+  --sidebar-width: 252px;
   --sidebar-width-collapsed: 72px;
-  --topbar-height: 64px;
+  --topbar-height: 68px;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
 
   --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
 }
@@ -39,6 +42,10 @@
   --color-primary: #4f46e5;
   --color-primary-dark: #4338ca;
   --color-primary-light: #eef2ff;
+  --color-violet: #9333ea;
+  --color-violet-light: #f3e8ff;
+  --color-blue: #2563eb;
+  --color-blue-light: #dbeafe;
   --color-secondary: #0ea5e9;
   --color-success: #16a34a;
   --color-success-light: #dcfce7;

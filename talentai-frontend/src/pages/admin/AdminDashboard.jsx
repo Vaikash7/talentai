@@ -30,22 +30,22 @@ export function AdminDashboard() {
 
       <div className="grid grid-4" style={{ marginBottom: 24 }}>
         <div className="card stat-card">
-          <div className="stat-icon"><Users size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-violet-light)', color: 'var(--color-violet)' }}><Users size={20} /></div>
           <div className="stat-value">{stats.total_users}</div>
           <div className="stat-label">Total Users</div>
         </div>
         <div className="card stat-card">
-          <div className="stat-icon"><Briefcase size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-blue-light)', color: 'var(--color-blue)' }}><Briefcase size={20} /></div>
           <div className="stat-value">{stats.total_jobs}</div>
           <div className="stat-label">Total Jobs ({stats.total_open_jobs} open)</div>
         </div>
         <div className="card stat-card">
-          <div className="stat-icon"><Layers size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-success-light)', color: 'var(--color-success)' }}><Layers size={20} /></div>
           <div className="stat-value">{stats.total_skills}</div>
           <div className="stat-label">Skills Catalog</div>
         </div>
         <div className="card stat-card">
-          <div className="stat-icon"><BookOpen size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-warning-light)', color: 'var(--color-warning)' }}><BookOpen size={20} /></div>
           <div className="stat-value">{stats.total_learning_resources}</div>
           <div className="stat-label">Learning Resources</div>
         </div>

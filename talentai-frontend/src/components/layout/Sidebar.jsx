@@ -1,8 +1,9 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Upload, User, Target, BookOpen, TrendingUp,
-  Briefcase, PlusCircle, Users, BarChart3, Sparkles, ChevronLeft, ChevronRight,
+  Briefcase, PlusCircle, Users, BarChart3, Sparkles, ChevronLeft, ChevronRight, LogOut,
 } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 const NAV_ITEMS = {
   candidate: [
@@ -27,15 +28,18 @@ const NAV_ITEMS = {
 
 export function Sidebar({ role, collapsed, onToggle }) {
   const items = NAV_ITEMS[role] || [];
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/', { replace: true });
+  };
 
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-logo">
-        <span style={{
-          width: 30, height: 30, borderRadius: 9, flexShrink: 0,
-          background: 'linear-gradient(135deg, var(--color-primary), #ec4899)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
-        }}><Sparkles size={16} /></span>
+        <span className="sidebar-logo-badge"><Sparkles size={17} /></span>
         {!collapsed && <span>TalentAI</span>}
       </div>
       <nav className="sidebar-nav">
@@ -52,6 +56,10 @@ export function Sidebar({ role, collapsed, onToggle }) {
         ))}
       </nav>
       <div className="sidebar-footer">
+        <button className="sidebar-logout" onClick={handleLogout}>
+          <LogOut size={19} />
+          {!collapsed && <span>Logout</span>}
+        </button>
         <button className="icon-btn" onClick={onToggle} style={{ width: '100%', justifyContent: 'center' }}>
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>

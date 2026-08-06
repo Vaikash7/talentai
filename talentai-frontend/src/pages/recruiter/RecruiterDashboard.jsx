@@ -36,17 +36,17 @@ export function RecruiterDashboard() {
 
       <div className="grid grid-3" style={{ marginBottom: 24 }}>
         <div className="card stat-card">
-          <div className="stat-icon"><Briefcase size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-violet-light)', color: 'var(--color-violet)' }}><Briefcase size={20} /></div>
           <div className="stat-value">{jobs.length}</div>
           <div className="stat-label">Total Postings</div>
         </div>
         <div className="card stat-card">
-          <div className="stat-icon"><Users size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-success-light)', color: 'var(--color-success)' }}><Users size={20} /></div>
           <div className="stat-value">{openJobs}</div>
           <div className="stat-label">Open Positions</div>
         </div>
         <div className="card stat-card">
-          <div className="stat-icon"><Briefcase size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-blue-light)', color: 'var(--color-blue)' }}><Briefcase size={20} /></div>
           <div className="stat-value">{draftJobs}</div>
           <div className="stat-label">Drafts</div>
         </div>

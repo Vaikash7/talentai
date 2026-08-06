@@ -69,22 +69,22 @@ export function CandidateDashboard() {
 
       <div className="grid grid-4" style={{ marginBottom: 24 }}>
         <div className="card stat-card">
-          <div className="stat-icon"><Target size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-violet-light)', color: 'var(--color-violet)' }}><Target size={20} /></div>
           <div className="stat-value">{matches.length}</div>
           <div className="stat-label">Job Matches</div>
         </div>
         <div className="card stat-card">
-          <div className="stat-icon"><Upload size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-blue-light)', color: 'var(--color-blue)' }}><Upload size={20} /></div>
           <div className="stat-value">{profile?.skills?.length || 0}</div>
           <div className="stat-label">Skills Identified</div>
         </div>
         <div className="card stat-card">
-          <div className="stat-icon"><TrendingUp size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-success-light)', color: 'var(--color-success)' }}><TrendingUp size={20} /></div>
           <div className="stat-value">{topMatch ? `${topMatch.score}%` : '—'}</div>
           <div className="stat-label">Best Match Score</div>
         </div>
         <div className="card stat-card">
-          <div className="stat-icon"><BookOpen size={20} /></div>
+          <div className="stat-icon" style={{ background: 'var(--color-violet-light)', color: 'var(--color-violet)' }}><BookOpen size={20} /></div>
           <div className="stat-value">{topMatch?.gap_skills?.length || 0}</div>
           <div className="stat-label">Skills to Learn</div>
         </div>
