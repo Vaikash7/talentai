@@ -12,6 +12,7 @@ class LearningResourceOut(BaseModel):
     url: Optional[str] = None
     skill_name: str
     level: ResourceLevel
+    explanation: Optional[str] = None
 
     class Config:
         from_attributes = True
