@@ -44,7 +44,12 @@ export function LearningPage() {
                 <span className={`badge ${levelBadge[r.level] || 'badge-neutral'}`}>{r.level}</span>
               </div>
               <div style={{ fontWeight: 600, marginBottom: 6 }}>{r.title}</div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 14 }}>{r.provider}</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 10 }}>{r.provider}</div>
+              {r.explanation && (
+                <p style={{ fontSize: 12.5, color: 'var(--color-text-secondary)', marginBottom: 14, lineHeight: 1.5 }}>
+                  {r.explanation}
+                </p>
+              )}
               {r.url && (
                 <a href={r.url} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">
                   View Resource <ExternalLink size={14} />
