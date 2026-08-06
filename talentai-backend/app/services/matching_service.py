@@ -9,6 +9,7 @@ from app.repositories.job_repository import JobRepository
 from app.repositories.candidate_repository import CandidateRepository
 from app.repositories.match_repository import MatchRepository
 from app.matching.scorer import calculate_match_score, ScoreResult
+from app.ai.gemini_client import call_gemini, GeminiUnavailableError
 
 
 class MatchingService:
@@ -32,7 +33,14 @@ class MatchingService:
         required_skills = self._get_job_required_skills(job)
 
         result = calculate_match_score(candidate_skills, required_skills)
-        rationale = self._generate_rationale(result, required_skills)
+
+        # Try Gemini for a richer, natural-language rationale first;
+        # fall back to the deterministic rule-based rationale (unchanged
+        # below) if AI is unavailable for any reason.
+        try:
+            rationale = self._generate_rationale_ai(job, result)
+        except GeminiUnavailableError:
+            rationale = self._generate_rationale(result, required_skills)
 
         return self.match_repo.upsert(
             job_id=job.id,
@@ -43,14 +51,36 @@ class MatchingService:
             ai_rationale=rationale,
         )
 
+    def _generate_rationale_ai(self, job: Job, result: ScoreResult) -> str:
+        """
+        Uses Gemini to generate a natural-language explanation of why
+        a candidate matches (or doesn't match) a job, given the same
+        score/matched/gap data the deterministic scorer already
+        computed. Raises GeminiUnavailableError on any failure so the
+        caller falls back to _generate_rationale() below.
+        """
+        matched_list = ", ".join(result.matched_skills) if result.matched_skills else "none"
+        gap_list = ", ".join(result.gap_skills) if result.gap_skills else "none"
+
+        prompt = f"""Write a brief (2-3 sentence), professional, encouraging explanation
+for why a candidate scored {result.score}% for the job "{job.title}".
+
+Matched skills: {matched_list}
+Missing skills: {gap_list}
+
+Write it as if explaining the match to the candidate directly. Be specific about the
+skills mentioned. Do not use markdown formatting. Return ONLY the explanation text,
+nothing else."""
+
+        return call_gemini(prompt).strip()
+
     def _generate_rationale(self, result: ScoreResult, required_skills: List[dict]) -> str:
         """
         Deterministic, rule-based explanation of a match score — built
         from the same data the scorer already computed. This is
-        TalentAI's permanent rationale generator; no external AI
-        provider is used. See app/ai/README.md for how an AI-based
-        rationale generator could be plugged in here in the future
-        without changing anything else in this file.
+        TalentAI's permanent FALLBACK rationale generator, used
+        automatically whenever Gemini (_generate_rationale_ai) is
+        unavailable. See app/ai/README.md for details.
         """
         mandatory_names = {r["name"] for r in required_skills if r.get("is_mandatory", True)}
         matched_set = set(result.matched_skills)
@@ -112,9 +142,6 @@ class MatchingService:
             match = self.compute_match(job, profile)
             results.append(self._match_to_dict(match, candidate_profile=profile))
 
-        # Internal Mobility: for internal project postings, surface internal
-        # employees first (same scores are preserved — this only reorders
-        # the list, it never changes or filters the underlying scores).
         if job.job_type.value == "project":
             results.sort(
                 key=lambda m: (m["candidate_employee_type"] != "internal", -m["score"])
@@ -125,10 +152,6 @@ class MatchingService:
         return results
 
     def _match_to_dict(self, match: Match, job: Job = None, candidate_profile: CandidateProfile = None) -> dict:
-        # candidate_employee_type is resolved either from the profile passed
-        # directly (recruiter-facing view) or looked up via the match's
-        # own candidate_profile relationship (candidate-facing view), so
-        # both directions expose this field consistently.
         resolved_profile = candidate_profile or match.candidate_profile
         return {
             "match_id": match.id,
