@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Users, Building2, Globe } from 'lucide-react';
+import { Users, Building2, Globe, Sparkles } from 'lucide-react';
 import { PageLayout } from '../../components/layout/PageLayout';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -62,8 +62,13 @@ export function CandidateMatchesPage() {
                 <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', maxWidth: '65%' }}>
                   {m.candidate_summary ? m.candidate_summary.split('\n')[0] : 'Candidate'}
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   <EmployeeTypeBadge type={m.candidate_employee_type} />
+                  {m.candidate_open_to_internal && (
+                    <span className="badge badge-warning" title="This candidate has signaled they're open to internal opportunities">
+                      <Sparkles size={12} /> Open to Internal Moves
+                    </span>
+                  )}
                   <span className={`badge ${scoreColor(m.score)}`}>{m.score}% Match</span>
                 </div>
               </div>

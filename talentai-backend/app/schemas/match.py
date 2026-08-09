@@ -16,3 +16,4 @@ class MatchOut(BaseModel):
     job_title: Optional[str] = None
     candidate_summary: Optional[str] = None
     candidate_employee_type: Optional[EmployeeType] = None
+    candidate_open_to_internal: bool = False

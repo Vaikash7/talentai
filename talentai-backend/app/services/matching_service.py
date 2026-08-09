@@ -164,4 +164,5 @@ nothing else."""
             "job_title": job.title if job else None,
             "candidate_summary": candidate_profile.summary if candidate_profile else None,
             "candidate_employee_type": resolved_profile.employee_type if resolved_profile else None,
+            "candidate_open_to_internal": resolved_profile.open_to_internal_opportunities if resolved_profile else False,
         }
