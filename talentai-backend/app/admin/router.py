@@ -6,7 +6,7 @@ from app.db.session import get_db
 from app.core.security import require_role
 from app.db.models.user import User
 from app.services.admin_service import AdminService
-from app.schemas.admin import UserSummaryOut, AdminStatsOut
+from app.schemas.admin import UserSummaryOut, AdminStatsOut, SkillDemandOut
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -27,3 +27,12 @@ def get_stats(
 ):
     service = AdminService(db)
     return service.get_stats()
+
+
+@router.get("/skill-demand", response_model=List[SkillDemandOut])
+def get_skill_demand(
+    current_user: User = Depends(require_role("admin")),
+    db: Session = Depends(get_db),
+):
+    service = AdminService(db)
+    return service.get_skill_demand_heatmap()

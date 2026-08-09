@@ -23,3 +23,13 @@ class AdminStatsOut(BaseModel):
     total_open_jobs: int
     total_skills: int
     total_learning_resources: int
+
+
+class SkillDemandOut(BaseModel):
+    skill_id: uuid.UUID
+    skill_name: str
+    category: Optional[str] = None
+    demand_count: int
+    supply_count: int
+    internal_supply_count: int
+    gap: int
