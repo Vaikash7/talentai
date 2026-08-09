@@ -96,6 +96,15 @@ class CandidateService:
             raise ValueError("Candidate profile not found.")
         return profile
 
+    def set_open_to_internal_opportunities(self, user_id, value: bool) -> CandidateProfile:
+        profile = self.repo.get_by_user_id(user_id)
+        if not profile:
+            raise ValueError("Candidate profile not found.")
+        profile.open_to_internal_opportunities = value
+        self.db.commit()
+        self.db.refresh(profile)
+        return profile
+
     def extract_with_ai(self, resume_text: str) -> dict:
         """
         Uses Gemini to extract structured resume data: technical skills,

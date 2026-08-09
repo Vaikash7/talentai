@@ -1,7 +1,7 @@
 import enum
 import uuid
 
-from sqlalchemy import Column, String, Integer, Text, Enum, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, String, Integer, Text, Enum, ForeignKey, UniqueConstraint, Boolean
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.orm import relationship
 
@@ -38,6 +38,7 @@ class CandidateProfile(Base):
     summary = Column(Text, nullable=True)
     experience_years = Column(Integer, nullable=True)
     employee_type = Column(Enum(EmployeeType), nullable=False, default=EmployeeType.external)
+    open_to_internal_opportunities = Column(Boolean, nullable=False, default=False)
 
     # Relationships
     user = relationship("User", back_populates="candidate_profile")

@@ -30,7 +30,12 @@ class CandidateProfileOut(BaseModel):
     summary: Optional[str] = None
     experience_years: Optional[int] = None
     employee_type: EmployeeType
+    open_to_internal_opportunities: bool = False
     skills: List[SkillOut] = []
 
     class Config:
         from_attributes = True
+
+
+class OpenToInternalUpdate(BaseModel):
+    open_to_internal_opportunities: bool

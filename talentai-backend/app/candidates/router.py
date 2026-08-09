@@ -9,7 +9,7 @@ from app.services.candidate_service import CandidateService
 from app.services.matching_service import MatchingService
 from app.services.learning_service import LearningService
 from app.services.career_service import CareerService
-from app.schemas.candidate import ResumeUploadResponse, CandidateProfileOut, SkillOut
+from app.schemas.candidate import ResumeUploadResponse, CandidateProfileOut, SkillOut, OpenToInternalUpdate
 from app.schemas.match import MatchOut
 from app.schemas.learning import LearningResourceOut
 from app.schemas.career import CareerTrackOut, CareerPathOut, CareerStageOut, RecommendedLearningOut
@@ -74,6 +74,36 @@ def get_my_profile(
         summary=profile.summary,
         experience_years=profile.experience_years,
         employee_type=profile.employee_type,
+        open_to_internal_opportunities=profile.open_to_internal_opportunities,
+        skills=[
+            SkillOut(id=link.skill.id, name=link.skill.name, category=link.skill.category)
+            for link in profile.skills
+        ],
+    )
+
+
+@router.put("/open-to-internal", response_model=CandidateProfileOut)
+def update_open_to_internal(
+    data: OpenToInternalUpdate,
+    current_user: User = Depends(require_role("candidate")),
+    db: Session = Depends(get_db),
+):
+    service = CandidateService(db)
+    try:
+        profile = service.set_open_to_internal_opportunities(
+            current_user.id, data.open_to_internal_opportunities
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+    return CandidateProfileOut(
+        id=profile.id,
+        user_id=profile.user_id,
+        resume_blob_url=profile.resume_blob_url,
+        summary=profile.summary,
+        experience_years=profile.experience_years,
+        employee_type=profile.employee_type,
+        open_to_internal_opportunities=profile.open_to_internal_opportunities,
         skills=[
             SkillOut(id=link.skill.id, name=link.skill.name, category=link.skill.category)
             for link in profile.skills
