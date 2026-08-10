@@ -10,6 +10,18 @@ class MatchRepository(BaseRepository[Match]):
     def __init__(self, db: Session):
         super().__init__(Match, db)
 
+    def set_application_status(self, match_id, status: str):
+        from datetime import datetime, timezone
+        match = self.get_by_id(match_id)
+        if not match:
+            return None
+        match.application_status = status
+        if status == "applied":
+            match.applied_at = datetime.now(timezone.utc)
+        self.db.commit()
+        self.db.refresh(match)
+        return match
+
     def get_by_job_and_candidate(self, job_id, candidate_profile_id) -> Optional[Match]:
         return (
             self.db.query(Match)

@@ -9,8 +9,9 @@ from app.services.candidate_service import CandidateService
 from app.services.matching_service import MatchingService
 from app.services.learning_service import LearningService
 from app.services.career_service import CareerService
+from app.repositories.match_repository import MatchRepository
 from app.schemas.candidate import ResumeUploadResponse, CandidateProfileOut, SkillOut, OpenToInternalUpdate
-from app.schemas.match import MatchOut
+from app.schemas.match import MatchOut, ApplyRequest
 from app.schemas.learning import LearningResourceOut
 from app.schemas.career import CareerTrackOut, CareerPathOut, CareerStageOut, RecommendedLearningOut
 
@@ -125,6 +126,28 @@ def get_my_matches(
     matching_service = MatchingService(db)
     results = matching_service.get_matches_for_candidate(profile.id)
     return [MatchOut(**r) for r in results]
+
+
+@router.post("/matches/apply", response_model=MatchOut)
+def apply_to_match(
+    data: ApplyRequest,
+    current_user: User = Depends(require_role("candidate")),
+    db: Session = Depends(get_db),
+):
+    match_repo = MatchRepository(db)
+    match = match_repo.get_by_id(data.match_id)
+    if not match:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Match not found.")
+
+    candidate_service = CandidateService(db)
+    profile = candidate_service.get_profile(current_user.id)
+    if match.candidate_profile_id != profile.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This match does not belong to you.")
+
+    updated = match_repo.set_application_status(data.match_id, "applied")
+
+    matching_service = MatchingService(db)
+    return MatchOut(**matching_service._match_to_dict(updated, job=updated.job))
 
 
 @router.get("/learning-recommendations", response_model=List[LearningResourceOut])

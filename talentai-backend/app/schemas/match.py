@@ -17,3 +17,8 @@ class MatchOut(BaseModel):
     candidate_summary: Optional[str] = None
     candidate_employee_type: Optional[EmployeeType] = None
     candidate_open_to_internal: bool = False
+    application_status: str = "not_applied"
+
+
+class ApplyRequest(BaseModel):
+    match_id: uuid.UUID

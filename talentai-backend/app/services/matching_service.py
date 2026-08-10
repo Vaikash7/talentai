@@ -34,9 +34,6 @@ class MatchingService:
 
         result = calculate_match_score(candidate_skills, required_skills)
 
-        # Try Gemini for a richer, natural-language rationale first;
-        # fall back to the deterministic rule-based rationale (unchanged
-        # below) if AI is unavailable for any reason.
         try:
             rationale = self._generate_rationale_ai(job, result)
         except GeminiUnavailableError:
@@ -52,13 +49,6 @@ class MatchingService:
         )
 
     def _generate_rationale_ai(self, job: Job, result: ScoreResult) -> str:
-        """
-        Uses Gemini to generate a natural-language explanation of why
-        a candidate matches (or doesn't match) a job, given the same
-        score/matched/gap data the deterministic scorer already
-        computed. Raises GeminiUnavailableError on any failure so the
-        caller falls back to _generate_rationale() below.
-        """
         matched_list = ", ".join(result.matched_skills) if result.matched_skills else "none"
         gap_list = ", ".join(result.gap_skills) if result.gap_skills else "none"
 
@@ -75,13 +65,6 @@ nothing else."""
         return call_gemini(prompt).strip()
 
     def _generate_rationale(self, result: ScoreResult, required_skills: List[dict]) -> str:
-        """
-        Deterministic, rule-based explanation of a match score — built
-        from the same data the scorer already computed. This is
-        TalentAI's permanent FALLBACK rationale generator, used
-        automatically whenever Gemini (_generate_rationale_ai) is
-        unavailable. See app/ai/README.md for details.
-        """
         mandatory_names = {r["name"] for r in required_skills if r.get("is_mandatory", True)}
         matched_set = set(result.matched_skills)
         gap_set = set(result.gap_skills)
@@ -165,4 +148,5 @@ nothing else."""
             "candidate_summary": candidate_profile.summary if candidate_profile else None,
             "candidate_employee_type": resolved_profile.employee_type if resolved_profile else None,
             "candidate_open_to_internal": resolved_profile.open_to_internal_opportunities if resolved_profile else False,
+            "application_status": match.application_status.value if hasattr(match.application_status, "value") else match.application_status,
         }
