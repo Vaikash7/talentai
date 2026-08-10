@@ -23,6 +23,7 @@ const NAV_ITEMS = {
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
     { to: '/admin/users', label: 'Users', icon: Users },
     { to: '/admin/stats', label: 'Platform Stats', icon: BarChart3 },
+    { to: '/admin/skill-demand', label: 'Skill Demand', icon: TrendingUp },
   ],
 };
 

@@ -20,6 +20,7 @@ import { CandidateMatchesPage } from '../pages/recruiter/CandidateMatchesPage';
 import { AdminDashboard } from '../pages/admin/AdminDashboard';
 import { UserManagementPage } from '../pages/admin/UserManagementPage';
 import { PlatformStatsPage } from '../pages/admin/PlatformStatsPage';
+import { SkillDemandPage } from '../pages/admin/SkillDemandPage';
 
 function HomeRedirect() {
   const { user, loading } = useAuth();
@@ -53,6 +54,7 @@ export function AppRoutes() {
       <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><UserManagementPage /></ProtectedRoute>} />
       <Route path="/admin/stats" element={<ProtectedRoute allowedRoles={['admin']}><PlatformStatsPage /></ProtectedRoute>} />
+      <Route path="/admin/skill-demand" element={<ProtectedRoute allowedRoles={['admin']}><SkillDemandPage /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
