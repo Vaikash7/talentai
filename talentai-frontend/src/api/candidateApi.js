@@ -10,6 +10,8 @@ export const candidateApi = {
   },
   getProfile: () => axiosClient.get('/candidates/profile'),
   getMatches: () => axiosClient.get('/candidates/matches'),
+  applyToMatch: (matchId) => axiosClient.post('/candidates/matches/apply', { match_id: matchId }),
+  withdrawApplication: (matchId) => axiosClient.post('/candidates/matches/withdraw', { match_id: matchId }),
   getLearningRecommendations: () => axiosClient.get('/candidates/learning-recommendations'),
   getCareerTracks: () => axiosClient.get('/candidates/career-tracks'),
   getCareerPath: (trackKey) => axiosClient.get(`/candidates/career-path/${trackKey}`),

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Users, Building2, Globe, Sparkles } from 'lucide-react';
+import { Users, Building2, Globe, Sparkles, CheckCircle2 } from 'lucide-react';
 import { PageLayout } from '../../components/layout/PageLayout';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -27,6 +27,7 @@ export function CandidateMatchesPage() {
   const [matches, setMatches] = useState([]);
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     (async () => {
@@ -41,6 +42,11 @@ export function CandidateMatchesPage() {
   if (loading) return <PageLayout role="recruiter" title="Candidate Matches"><LoadingSpinner /></PageLayout>;
 
   const isProject = job?.job_type === 'project';
+  const appliedCount = matches.filter((m) => m.application_status === 'applied').length;
+
+  const filteredMatches = filter === 'applied'
+    ? matches.filter((m) => m.application_status === 'applied')
+    : matches;
 
   return (
     <PageLayout role="recruiter" title={`Candidates for: ${job?.title || ''}`}>
@@ -50,19 +56,37 @@ export function CandidateMatchesPage() {
         </div>
       )}
 
-      {matches.length === 0 ? (
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <button
+          className={filter === 'all' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+          onClick={() => setFilter('all')}
+        >
+          All ({matches.length})
+        </button>
+        <button
+          className={filter === 'applied' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+          onClick={() => setFilter('applied')}
+        >
+          <CheckCircle2 size={14} /> Applied ({appliedCount})
+        </button>
+      </div>
+
+      {filteredMatches.length === 0 ? (
         <div className="card">
-          <EmptyState icon={Users} title="No candidates yet" message="No candidates have matching profiles for this job yet." />
+          <EmptyState icon={Users} title="No candidates yet" message="No candidates match this filter yet." />
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {matches.map((m) => (
-            <div key={m.match_id} className="card">
+          {filteredMatches.map((m) => (
+            <div key={m.match_id} className="card" style={{ border: m.application_status === 'applied' ? '2px solid var(--color-success)' : undefined }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                 <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', maxWidth: '65%' }}>
                   {m.candidate_summary ? m.candidate_summary.split('\n')[0] : 'Candidate'}
                 </div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  {m.application_status === 'applied' && (
+                    <span className="badge badge-success"><CheckCircle2 size={12} /> Applied</span>
+                  )}
                   <EmployeeTypeBadge type={m.candidate_employee_type} />
                   {m.candidate_open_to_internal && (
                     <span className="badge badge-warning" title="This candidate has signaled they're open to internal opportunities">

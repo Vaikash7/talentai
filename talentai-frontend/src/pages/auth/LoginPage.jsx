@@ -18,7 +18,7 @@ export function LoginPage() {
     setLoading(true);
     try {
       const user = await login(form.email, form.password);
-      navigate(`/${user.role}`);
+      navigate(`/${user.role}`, { replace: true });
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
     } finally {

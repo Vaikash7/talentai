@@ -26,7 +26,7 @@ export function RegisterPage() {
         delete payload.employee_type;
       }
       const user = await register(payload);
-      navigate(`/${user.role}`);
+      navigate(`/${user.role}`, { replace: true });
     } catch (err) {
       setError(err.response?.data?.detail || 'Registration failed. Please try again.');
     } finally {
